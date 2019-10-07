@@ -71,12 +71,16 @@ SecureStorage.prototype = {
         }
     },
 
-    set: function (success, error, key, value) {
+    set: function (success, error, key, value, config) {
         try {
             if (!_isString(value)) {
                 throw new Error('Value must be a string');
             }
-            _executeNativeMethod(success, error, 'set', [this.service, key, value]);
+            var params = [this.service, key, value];
+            if (config) {
+                params.push(config);
+            }
+            _executeNativeMethod(success, error, 'set', params);
         } catch (e) {
             error(e);
         }
