@@ -63,11 +63,18 @@ ss.set(
     console.log("Error " + error);
   },
   "mykey",
-  "myvalue"
+  "myvalue",
+  {
+      "requiresUserPresence": true,
+      "allowableAuthenticationReuseDuration": 10
+  }
 );
 ```
 
 where `key` and `value` are both strings.
+An additional object with the following configurations can be provided:
+- requiresUserPresence: whether the user needs to authenticate himself (Bool)
+- allowableAuthenticationReuseDuration: Integer which represents the seconds on how long an authentication can be reused. **Important**: it seems that the only authentication which can be reused is the one to unlock the device. If for some reason, two get requests follow immediately after each other, two face id authentications will be necessary, even if this property is set to a value.
 
 #### Get a key's value from the storage.
 
