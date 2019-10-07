@@ -1,6 +1,12 @@
 Changelog
 =========
 
+5.0.0-patch.1 - 2019-10-07
+------------------
+
+- Updated iOS code to Swift [jls-digital]
+- Added user presence configuration for iOS [jls-digital] 
+
 4.0.2 - 2019-09-30
 ------------------
 
