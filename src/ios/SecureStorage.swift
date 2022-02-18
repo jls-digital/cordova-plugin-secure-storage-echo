@@ -258,11 +258,38 @@ import LocalAuthentication
             return
         }
         
-        let query: [String: Any] = [
+        var query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: queryConfig.service,
-            kSecAttrAccount as String: queryConfig.key
+            kSecAttrAccount as String: queryConfig.key,
+            kSecValueData as String: value.data(using: String.Encoding.utf8)!
         ]
+        
+        if let requiresUserPresence = queryConfig.config.requiresUserPresence, requiresUserPresence {
+            var error: Unmanaged<CFError>?
+            
+            let access = SecAccessControlCreateWithFlags(
+                nil,
+                kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly,
+                .userPresence,
+                &error
+            )
+            
+            guard error == nil else {
+                send(status: CDVCommandStatus_INSTANTIATION_EXCEPTION,
+                    description: "Could not create access control flag due to: \(error!.takeRetainedValue().localizedDescription)",
+                    callbackId: command.callbackId)
+                
+                return
+            }
+            
+            let context = LAContext()
+            context.touchIDAuthenticationAllowableReuseDuration = TimeInterval(queryConfig.config.allowableAuthenticationReuseDuration ?? 0)
+            
+            query[kSecAttrAccessControl as String] = access
+            query[kSecUseAuthenticationContext as String] = context
+        }
+
         
         let attributes: [String: Any] = [
             kSecValueData as String: value.data(using: String.Encoding.utf8)!
@@ -282,6 +309,7 @@ import LocalAuthentication
              callbackId: command.callbackId)
     }
 }
+
 
 extension SecureStorage {
     struct KeychainError: Error {
